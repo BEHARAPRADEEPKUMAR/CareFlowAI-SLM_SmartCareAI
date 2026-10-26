@@ -9864,4 +9864,55 @@ button, a, input, select, textarea { touch-action: manipulation; -webkit-tap-hig
 }
 /* ===== END MOBILE + TABLET PATCH ===== */
 
+/* ===== CHAT MESSAGE WIDTH + TEXT WRAPPING FIX ===== */
+.careflow-chat-layout .chat-message {
+  width: 100%;
+  min-width: 0;
+}
+
+/* User bubbles were flex-shrinking to the width of a single character. */
+.careflow-chat-layout .chat-message-user .message-bubble {
+  display: block !important;
+  width: fit-content;
+  max-width: min(740px, 84%);
+  min-width: 0;
+  flex: 0 1 auto;
+}
+
+.careflow-chat-layout .chat-message-user .message-content {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: none;
+}
+
+/* Keep assistant text readable and prevent flex children from collapsing. */
+.careflow-chat-layout .chat-message-ai .message-bubble {
+  display: flex;
+  width: 100%;
+  max-width: 88%;
+  min-width: 0;
+}
+
+.careflow-chat-layout .chat-message-ai .message-content {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+@media (max-width: 650px) {
+  .careflow-chat-layout .chat-message-user .message-bubble {
+    max-width: 92%;
+  }
+  .careflow-chat-layout .chat-message-ai .message-bubble {
+    max-width: 100%;
+  }
+}
+
 `;
