@@ -933,55 +933,42 @@ function rankBookingOptions(
       slotTime(option)
   );
 
-  const sorted = [...usable].sort(
-    (a, b) => {
-      const aMinutes =
-        timeToMinutes(
-          slotTime(a)
-        );
+  // Always show slots in chronological order: earliest date first,
+  // then earliest time. A requested time only breaks ties on the same day.
+  // The backend remains responsible for filtering the requested date range,
+  // doctor availability, and already-booked/past slots.
+  const sorted = [...usable].sort((a, b) => {
+    const aDate = normalizeSlotDate(slotDate(a));
+    const bDate = normalizeSlotDate(slotDate(b));
 
-      const bMinutes =
-        timeToMinutes(
-          slotTime(b)
-        );
-
-      if (
-        requestedMinutes !== null &&
-        requestedMinutes !== undefined
-      ) {
-        const aDifference =
-          aMinutes === null
-            ? Number.MAX_SAFE_INTEGER
-            : Math.abs(
-                aMinutes -
-                  requestedMinutes
-              );
-
-        const bDifference =
-          bMinutes === null
-            ? Number.MAX_SAFE_INTEGER
-            : Math.abs(
-                bMinutes -
-                  requestedMinutes
-              );
-
-        if (
-          aDifference !==
-          bDifference
-        ) {
-          return (
-            aDifference -
-            bDifference
-          );
-        }
-      }
-
-      return (
-        (aMinutes || 0) -
-        (bMinutes || 0)
-      );
+    if (aDate !== bDate) {
+      return aDate.localeCompare(bDate);
     }
-  );
+
+    const aMinutes = timeToMinutes(slotTime(a));
+    const bMinutes = timeToMinutes(slotTime(b));
+
+    if (
+      requestedMinutes !== null &&
+      requestedMinutes !== undefined
+    ) {
+      const aDifference =
+        aMinutes === null
+          ? Number.MAX_SAFE_INTEGER
+          : Math.abs(aMinutes - requestedMinutes);
+      const bDifference =
+        bMinutes === null
+          ? Number.MAX_SAFE_INTEGER
+          : Math.abs(bMinutes - requestedMinutes);
+
+      if (aDifference !== bDifference) {
+        return aDifference - bDifference;
+      }
+    }
+
+    return (aMinutes ?? Number.MAX_SAFE_INTEGER) -
+      (bMinutes ?? Number.MAX_SAFE_INTEGER);
+  });
 
   /*
    * Maximum 3 slots per doctor.
